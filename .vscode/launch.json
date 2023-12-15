@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach to Logic App",
+      "type": "coreclr",
+      "request": "attach",
+      "processId": "${command:azureLogicAppsStandard.pickProcess}"
+    },
+    {
+      "name": "Python: File",
+      "type": "python",
+      "request": "launch",
+      "program": "./source/send-notifications.py",
+      "justMyCode": true
+    }
+  ]
+}

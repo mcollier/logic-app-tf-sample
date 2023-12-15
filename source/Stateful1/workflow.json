@@ -1,0 +1,75 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Parse_JSON": {
+                "type": "ParseJson",
+                "inputs": {
+                    "content": "@triggerBody()?['messageText']",
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "recipient": {
+                                "type": "string"
+                            },
+                            "subject": {
+                                "type": "string"
+                            },
+                            "incident-date": {
+                                "type": "string"
+                            },
+                            "priority": {
+                                "type": "string"
+                            },
+                            "body": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "runAfter": {}
+            },
+            "Send_an_email_(V2)": {
+                "type": "ApiConnection",
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "referenceName": "office365"
+                        }
+                    },
+                    "method": "post",
+                    "body": {
+                        "To": "@body('Parse_JSON')?['recipient']",
+                        "Subject": "@body('Parse_JSON')?['subject']",
+                        "Body": "<p>@{body('Parse_JSON')?['body']}</p>",
+                        "Importance": "Normal"
+                    },
+                    "path": "/v2/Mail"
+                },
+                "runAfter": {
+                    "Parse_JSON": [
+                        "SUCCEEDED"
+                    ]
+                }
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "triggers": {
+            "When_messages_are_available_in_a_queue": {
+                "type": "ServiceProvider",
+                "inputs": {
+                    "parameters": {
+                        "queueName": "my-notifications-queue"
+                    },
+                    "serviceProviderConfiguration": {
+                        "connectionName": "azurequeues",
+                        "operationId": "receiveQueueMessages",
+                        "serviceProviderId": "/serviceProviders/azurequeues"
+                    }
+                }
+            }
+        }
+    },
+    "kind": "Stateful"
+}
