@@ -62,8 +62,8 @@ az storage queue create \
 ### Run the Logic App
 
 1. Modify the included `local.settings.SAMPLE.json` file to include your settings.
-1. Using Visual Studio Code, open the Logic App in the designer.
 1. In the local.settings.json file, set the value of the `notification_queue_connection_string` setting to the connection string of the desired Azure Storage queue.
+1. Using Visual Studio Code, open the Logic App in the designer.
 1. In the Logic App designer, click to open the "Send an email (V2)" action. Click the "Change connection" link to create a new connection.
     1. Sign into Office 365.
     1. Complete the series of authentication and redirect prompts.
@@ -82,7 +82,7 @@ The included `/source/send-notifications.py` Python script will send a message t
     NOTIFICATION_RECIPIENT=you@email.com
     ```
 
-1. Grant permissions.
+1. Grant yourself permissions to send messages to the queue.
 
     ```bash
     az role assignment create \
@@ -101,12 +101,33 @@ The included `/source/send-notifications.py` Python script will send a message t
 
 ## Deploy Logic App to Azure
 
+### Option - Deployment script
+
+Use the included `deploy-logic-app.sh` to create a zip file and deploy the Logic App.
+
+1. Create a `.env` file containing the following environment variables, substituting your Azure resource values as appropriate:
+
+    ```bash
+    LOGIC_APP_NAME="YOUR-LOGIC-APP-NAME"
+    RESOURCE_GROUP="YOUR-RESOURCE-GROUP"
+    SUBSCRIPTION_ID="YOUR-AZURE-SUBSCRIPTION-ID"
+    PROJECT_DIR="./source"
+    ARCHIVE_DIR="project_output"
+    ZIP_FILE_PATH="workflow.zip"
+    ```
+
+1. Run the script.  The script should create a zip file and deploy the zip using the Azure CLI.
+
+### Option - Visual Studio Code
+
 Use the VS Code extension for Logic App Standard to deploy the Logic App to the recently provisioned Logic App resource.
 
 1. Right-click on the `/source` directory and select the "Deploy to Logic App..." context menu option.
 1. Select the desired Azure subscription.
 1. Select the recently created Logic App resource.
 1. Agree to the warning prompt about overwriting previous deployments by clicking the Deploy button.
+
+### Authorize the Office 365 connection
 
 After deploying the workflow to Azure, the Office 365 connection will need authenticated using your Office 365 account.
 
@@ -116,10 +137,9 @@ After deploying the workflow to Azure, the Office 365 connection will need authe
 1. Authenticate using your Office 365 account.
 1. Click the Save button to save the changes.
 
-If while running the Logic App you receive an authentication error on the Office 365 send email task, you may need to create a new API connection.
-
 ### Notes
 
+- If while running the Logic App you receive an authentication error on the Office 365 send email task, you may need to create a new API connection
 - See [Set up DevOps deployment for Standard logic app workflows in single-tenant Azure Logic Apps](https://learn.microsoft.com/azure/logic-apps/set-up-devops-deployment-single-tenant-azure-logic-apps?tabs=github#create-api-connections-as-needed) for more on creating API connections.
 
 _Credit to <https://gist.github.com/SharonHart> and the post at [Provisioning Azure Logic Apps API Connections with Terraform](https://medium.com/microsoftazure/provisioning-azure-logic-apps-api-connections-with-terraform-980179980b5b)_ for the knowledge on setting up the API connections with Terraform.
