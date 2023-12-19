@@ -1,0 +1,27 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "variables": {},
+    "resources": [
+        {
+            "name": "office365",
+            "type": "Microsoft.Web/connections",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2016-06-01",
+            "kind": "V2",
+            "properties": {
+                "displayName": "Office365",
+                "api": {
+                    "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "connectionRuntimeUrl": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Web/connections', 'office365'), '2016-06-01').connectionRuntimeUrl]"
+        }
+    }
+}

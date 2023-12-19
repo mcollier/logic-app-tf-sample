@@ -69,56 +69,44 @@ module "logicapp" {
     WORKFLOWS_RESOURCE_GROUP_NAME        = var.resource_group_name
     WORKFLOWS_SUBSCRIPTION_ID            = data.azurerm_client_config.current.subscription_id
     WORKFLOWS_LOCATION_NAME              = var.location
+    OFFICE365_CONNECTION_RUNTIME_URL     = jsondecode(azurerm_resource_group_template_deployment.office365_api_connetion.output_content).connectionRuntimeUrl.value
   }
   tags = {}
 }
 
 # NOTE: The Terraform azurerm_api_connection seems to create a "v1" API connection, which is not what is needed
-#       for the Logic App. The Logic App needs a "v2" API connection. The Terraform azapi_resource resource
-#       is used to create the "v2" API connection.
-# data "azurerm_managed_api" "office-api" {
-#   name     = "office365"
-#   location = var.location
-# }
+#       for the Logic App. The Logic App needs a "v2" API connection. Thefore, the azurerm_resource_gorup_template_deployment
+#       resource is used to create the "v2" API connection and associated access policy.
+#       See https://github.com/hashicorp/terraform-provider-azurerm/issues/23064.
+data "local_file" "office365_arm_template" {
+  filename = "${path.module}/office365-api-connection.json"
+}
 
-# resource "azurerm_api_connection" "office_api_conn" {
-#   name                = "office365"
-#   resource_group_name = azurerm_resource_group.rg.name
-#   managed_api_id      = data.azurerm_managed_api.office-api.id
-#   display_name        = "office365"
-# }
+data "local_file" "office365_arm_template_access_policy" {
+  filename = "${path.module}/office365-api-connection-access-policy.json"
 
-# NOTE: Unable to get this working yet.  Need to manually created the connection in the portal. :(
-# resource "azapi_resource" "office365_connection" {
-#   name      = "office365_connection"
-#   location  = var.location
-#   type      = "Microsoft.Web/connections@2016-06-01"
-#   parent_id = azurerm_resource_group.rg.id
-#   body = jsonencode({
-#     properties = {
-#       displayName = "office365"
-#       api = {
-#         name        = "office365",
-#         displayName = "Office 365 Outlook",
-#         id          = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/providers/Microsoft.Web/locations/${var.location}/managedApis/office365"
-#         type        = "Microsoft.Web/locations/managedApis"
-#       }
-#     }
-#   })
-# }
+}
 
-# resource "azapi_resource" "office365_access_policy" {
-#   name     = "office365_connection_access_policy"
-#   location = var.location
-#   type     = "Microsoft.Web/connections/accessPolicies@2016-06-01"
-#   body = jsonencode({
-#     properties = {
-#       principal = {
-#         type = "ActiveDirectory"
-#         identity = {
-#           tenantId    = data.azurerm_client_config.current.tenant_id
-#           principalId = module.logicapp.IDENTITY
-#         }
-#       }
-#   } })
-# }
+resource "azurerm_resource_group_template_deployment" "office365_api_connetion" {
+  name                = "office365_api_connetion"
+  resource_group_name = azurerm_resource_group.rg.name
+  deployment_mode     = "Incremental"
+  template_content    = data.local_file.office365_arm_template.content
+  parameters_content  = jsonencode({})
+}
+
+resource "azurerm_resource_group_template_deployment" "office365_api_connection_access_policy" {
+  name                = "office365_api_connection_access_policy"
+  resource_group_name = azurerm_resource_group.rg.name
+  deployment_mode     = "Incremental"
+  template_content    = data.local_file.office365_arm_template_access_policy.content
+  parameters_content = jsonencode({
+    "principalId" = {
+      value = module.logicapp.principal_id
+    },
+    "tenantId" = {
+      value = data.azurerm_client_config.current.tenant_id
+    }
+  })
+}
+
