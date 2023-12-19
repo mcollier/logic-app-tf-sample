@@ -1,0 +1,16 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "APP_KIND": "workflowapp",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "ProjectDirectoryPath": "/workspaces/notification-workflow/source/",
+    "WORKFLOWS_SUBSCRIPTION_ID": "[YOUR-AZURE-SUBSRIPTION-ID]",
+    "WORKFLOWS_TENANT_ID": "[YOUR-AZURE-TENANT-ID]",
+    "WORKFLOWS_RESOURCE_GROUP_NAME": "[YOUR-AZURE-RESOURCE-GROUP-NAME]",
+    "WORKFLOWS_LOCATION_NAME": "eastus",
+    "WORKFLOWS_MANAGEMENT_BASE_URI": "https://management.azure.com/",
+    "OFFICE365_CONNECTION_RUNTIME_URL": "[YOUR-OFFICE-365-CONNECTION-RUNTIME-URL]",
+    "notification_queue_connection_string": "[YOUR-AZURE-STORAGE-CONNECTION-STRING]"
+  }
+}

@@ -1,0 +1,8 @@
+{
+    "office365-auth": {
+        "type": "Object",
+        "value": {
+            "type": "ManagedServiceIdentity"
+        }
+    }
+}

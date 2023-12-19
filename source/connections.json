@@ -1,0 +1,26 @@
+{
+  "serviceProviderConnections": {
+    "azurequeues": {
+      "parameterValues": {
+        "connectionString": "@appsetting('notification_queue_connection_string')"
+      },
+      "parameterSetName": "connectionString",
+      "serviceProvider": {
+        "id": "/serviceProviders/azurequeues"
+      },
+      "displayName": "storage-notifications"
+    }
+  },
+  "managedApiConnections": {
+    "office365": {
+      "api": {
+        "id": "/subscriptions/@appsetting('WORKFLOWS_SUBSCRIPTION_ID')/providers/Microsoft.Web/locations/@appsetting('WORKFLOWS_LOCATION_NAME')/managedApis/office365"
+      },
+      "connection": {
+        "id": "/subscriptions/@appsetting('WORKFLOWS_SUBSCRIPTION_ID')/resourceGroups/@appsetting('WORKFLOWS_RESOURCE_GROUP_NAME')/providers/Microsoft.Web/connections/office365"
+      },
+      "connectionRuntimeUrl": "@appsetting('OFFICE365_CONNECTION_RUNTIME_URL')",
+      "authentication": "@parameters('office365-auth')"
+    }
+  }
+}
